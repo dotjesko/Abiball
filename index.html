@@ -43,21 +43,30 @@
         function initQRScanner() {
             let qrScanner = new Html5Qrcode("qr-reader");
 
-            qrScanner.start(
-                { facingMode: "environment" }, // Kamera des Geräts
-                {
-                    fps: 10, // Frames pro Sekunde
-                    qrbox: 250 // Größe des Scan-Fensters
-                },
-                onScanSuccess,
-                onScanError
-            ).catch(err => {
-                console.error(`QR Scanner Error: ${err}`);
-                document.getElementById('result').innerText = `Fehler beim Starten des QR Scanners: ${err}`;
+            Html5Qrcode.getCameras().then(cameras => {
+                if (cameras && cameras.length) {
+                    let cameraId = cameras[0].id; // Verwenden Sie die erste Kamera
+                    qrScanner.start(
+                        { facingMode: { exact: cameraId } }, // Spezifische Kamera verwenden
+                        {
+                            fps: 10, // Frames pro Sekunde
+                            qrbox: 250 // Größe des Scan-Fensters
+                        },
+                        onScanSuccess,
+                        onScanError
+                    ).catch(err => {
+                        console.error(`QR Scanner Start Error: ${err}`);
+                        document.getElementById('result').innerText = `Fehler beim Starten des QR Scanners: ${err}`;
+                    });
+                } else {
+                    document.getElementById('result').innerText = 'Keine Kamera gefunden.';
+                }
+            }).catch(err => {
+                console.error(`Camera Error: ${err}`);
+                document.getElementById('result').innerText = `Fehler beim Abrufen der Kamera: ${err}`;
             });
         }
 
-        // Sicherstellen, dass die Seite über HTTPS aufgerufen wird
         if (location.protocol === 'http:') {
             document.getElementById('result').innerText = 'Bitte rufen Sie die Seite über HTTPS auf.';
         } else {
