@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #qr-reader {
+            width: 300px;
+            margin-bottom: 20px;
+        }
+        #result {
+            font-size: 1.2em;
+            color: #333;
+        }
+    </style>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+</head>
+<body>
+    <h1>QR Code Scanner</h1>
+    <div id="qr-reader"></div>
+    <div id="result">Scannen Sie einen QR-Code</div>
+
+    <script>
+        function onScanSuccess(qrMessage) {
+            document.getElementById('result').innerText = `QR Code Inhalt: ${qrMessage}`;
+        }
+
+        function onScanError(errorMessage) {
+            console.warn(`QR Scan Error: ${errorMessage}`);
+        }
+
+        function initQRScanner() {
+            let qrScanner = new Html5Qrcode("qr-reader");
+
+            qrScanner.start(
+                { facingMode: "environment" }, // Kamera des Geräts
+                {
+                    fps: 10, // Frames pro Sekunde
+                    qrbox: 250 // Größe des Scan-Fensters
+                },
+                onScanSuccess,
+                onScanError
+            ).catch(err => {
+                console.error(`QR Scanner Error: ${err}`);
+                document.getElementById('result').innerText = `Fehler beim Starten des QR Scanners: ${err}`;
+            });
+        }
+
+        // Sicherstellen, dass die Seite über HTTPS aufgerufen wird
+        if (location.protocol === 'http:') {
+            document.getElementById('result').innerText = 'Bitte rufen Sie die Seite über HTTPS auf.';
+        } else {
+            initQRScanner();
+        }
+    </script>
+</body>
+</html>
